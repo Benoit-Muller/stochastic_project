@@ -1,0 +1,71 @@
+\documentclass[a4paper]{article}
+\usepackage{amsmath} %pour tous les trucs de math
+\usepackage{systeme} %pour tous les systemes d'équations
+%\usepackage{ bbold }  %pour toutes les doubles lettres
+\usepackage{amssymb}  %pour les double Lettres
+\usepackage{IEEEtrantools} %pour les équations en collonnes
+\usepackage{amsthm} %pour les preuves
+\usepackage[english]{babel} % la langue utilisée
+\usepackage[utf8]{inputenc} % encodage symboles entrée
+\usepackage[T1]{fontenc} % encodage symboles sortie
+\usepackage{fancyhdr} %pour les entêtes et pied de page
+%\usepackage[math]{blindtext} % pour le Lorem ipsum
+%\usepackage{enumitem} %pour changer les listes
+\usepackage[a4paper,textwidth=15cm,,textheight=25cm]{geometry}
+%\usepackage[framed,numbered]{mcode} %MatLab
+\usepackage{graphicx} % pour les graphiques
+%\usepackage{subfig} % pour les doubles figures
+\usepackage{float} % pour bien positionner les figures
+\usepackage[dvipsnames]{xcolor} % pour la couleur du texte et de la page
+%\usepackage{biblatex} % bibliographie
+%\usepackage{csquotes} % pour que la biblio s'adapte à la langue
+\usepackage{prettyref}
+\usepackage[hidelinks]{hyperref} % pour les hyperliens et références(mettre en dernier)
+
+\newrefformat{fig}{Figure~[\ref{#1}]}
+\newrefformat{it}{question~\ref{#1}.}
+\newrefformat{eq}{(\ref{#1})}
+\newrefformat{seq}{Section~\ref{#1}}
+\newrefformat{th}{Theorem~\ref{#1}}
+\newrefformat{lem}{Lemma~\ref{#1}}
+\newrefformat{cor}{Corollary~\ref{#1}}
+\newrefformat{rem}{Remark~\ref{#1}}
+
+\newtheorem{theoreme}{Theorem} %[section]
+\newtheorem{corollaire}{Corollary} %[theorem]
+\newtheorem{lemme}{Lemma} %[theorem]
+\theoremstyle{definition}
+    \newtheorem{definition}{Definition} %[section]
+\theoremstyle{remark}
+     \newtheorem*{remarque}{Remark}
+
+\pagestyle{fancy}
+%\fancyhf{}
+\lhead{Stochastic Simulations}
+\chead{Autumn Semester 2021}
+\rhead{Benoît Müller}
+
+\title{Stochastic Simulations: Project 5 \\
+\bf{QMC integration of non-smooth functions: application to pricing exotic options} }
+\author{Benoît Müller}
+
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\com}[1]{\textcolor{ForestGreen}{[~\emph{#1}~]}}
+%\newcommand{\nom}[nombre d’arguments]{définition(#1,#2,...,#n)}
+
+\begin{document}
+\maketitle
+\part{}
+First estimate the value of the integral, as well as the error of the estimation, using a crude Monte Carlo and a randomized QMC, without the pre-integration trick, i.e., by generating (Q)MC sample $(z^{(1)},\dots, z^{(N)})$ over the $m$-dimensional unit cube $[0, 1]^m$. Try increasing values of the samples size $N = 27,\dots, 213$ and plot the estimated error versus $N$. Comment on the observed convergence rate.
+\part{}
+Implement now the pre-integration trick. First, generate randomized (Q)MC points over [0,1]m−1, and decide on which direction xj to perform the integration and discuss your choice (or, alternatively, compare numerically different choices) depending also on the adopted re-parametrization of the Brownian path. Use the pre-integration approach to estimate Vi using both QMC and MC. Estimate your (Q)Monte Carlo error using sample sizes N = 27,...,213. Plot the estimated error versus N. Compare your results to those obtained in point 1 in terms of error and computational cost.
+\part{}
+Consider now K = 500 and the goal of computing V1 and V2 with given relative accuracy $10^{−2}$ in the mean squared sense. What sample size should be used for a crude MC estimator? Propose a variance reduction technique to improve the performance of the crude MC estimator.
+\part{}
+Repeat point 3 for the QMC estimator (with and without the pre-integration trick). What do you observe? Can the variance reduction technique proposed in point 3 be used also in this context? If yes, how?
+\end{document}
