@@ -8,7 +8,7 @@ Created on Mon Dec 20 17:28:31 2021
             PROJECT 5
 ––––––––––––––––––––––––––––––––––
 """
-
+#ceci est un test pour essayer github
 import numpy as np
 import scipy as sp
 import scipy.stats  as st
