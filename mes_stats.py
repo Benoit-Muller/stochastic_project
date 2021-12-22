@@ -27,19 +27,24 @@ def cdf(X,x=None):
         return np.sum(X<=x,0)/n
     
 class RandomVariable:
-    """personal methods for statistics"""
+    """
+    Methods for statistics on random variable samples
+    Use array of numpy
+    """
     def __init__(self,X=np.array([]),name="",ordered=False):
+        "Initiate a rv with sample X"
         self.X=X
         self.ordered=ordered
         self.N=len(X)
         self.name=name
     def sort(self):
+        "Sort the sample to increasing order"
         self.X.sort()
         self.ordered=True
     def cdf(self,x=None):
-        """
-        Empirical cdf of X (evaluated in x)
-        """
+        """ Empirical cdf of X (evaluated in x)
+        if x=None  : return locations of jumps and their heigth
+        if x!=None : return the images cdf(x) """
         n=len(self.X)
         if self.ordered==False:
             self.sort()
@@ -53,15 +58,23 @@ class RandomVariable:
             self.X=np.reshape(self.X,(n,1))
             return np.sum(self.X<=x,0)/n   
     def add_data(self,X):
+        "Alow to add some new data and add it to the sample"
         self.X = np.concatenate((self.X,X))
         self.ordered = False
         self.N = self.N + len(X)
     def mean(self):
+        "Compute the empirical esperance"
         return np.sum(self.X)/self.N
-    def variance(self):
-        return np.sum((self.mean() - self.X)**2) / (self.N-1)
+    def variance(self,mean=None):
+        """Compute the empirical variance,
+        using mean if already computed """
+        if mean==None:
+            mean=self.mean()
+        return np.sum((mean - self.X)**2) / (self.N-1)
     def interval(self,alpha):
+        """Compute the interval of confidence alpha"
+        return the mean and the error st. I=[mu+-error] """
         mu= self.mean()
-        delta =   st.norm.ppf(1-alpha/2) * np.sqrt(self.variance()/self.N)
-        return mu, delta
+        err =   st.norm.ppf(1-alpha/2) * np.sqrt(self.variance(mu)/self.N)
+        return mu, err
             
