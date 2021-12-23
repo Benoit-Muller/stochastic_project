@@ -31,12 +31,11 @@ class RandomVariable:
     Methods for statistics on random variable samples
     Use array of numpy
     """
-    def __init__(self,X=np.array([]),name="",ordered=False):
+    def __init__(self,X=np.array([]),ordered=False):
         "Initiate a rv with sample X"
         self.X=X
         self.ordered=ordered
         self.N=len(X)
-        self.name=name
     def sort(self):
         "Sort the sample to increasing order"
         self.X.sort()
@@ -62,6 +61,11 @@ class RandomVariable:
         self.X = np.concatenate((self.X,X))
         self.ordered = False
         self.N = self.N + len(X)
+    def set_data(self,X):
+        "Alow to set some new data and change the sample"
+        self.X = X
+        self.ordered = False
+        self.N =len(X)
     def mean(self):
         "Compute the empirical esperance"
         return np.sum(self.X)/self.N
@@ -72,8 +76,8 @@ class RandomVariable:
             mean=self.mean()
         return np.sum((mean - self.X)**2) / (self.N-1)
     def interval(self,alpha):
-        """Compute the interval of confidence alpha"
-        return the mean and the error st. I=[mu+-error] """
+        """Compute the 1-alpha confidence interval"
+        return the mean and the error st. I=[mu +- error] """
         mu= self.mean()
         err =   st.norm.ppf(1-alpha/2) * np.sqrt(self.variance(mu)/self.N)
         return mu, err

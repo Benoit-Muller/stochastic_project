@@ -19,8 +19,11 @@ from mes_stats import RandomVariable
 from sobol_new import *
 
 # File saving options:
-save_figures = True # Change the value if needed
-
+save_figures = False # Change the value if needed
+if (save_figures==True and 
+    input("Do you really want to save figures into files?\n(yes/no): ")=="no"):
+    save_figures = False
+    
 # Define constants of the problem:
 K=100 
 S0=100
@@ -105,7 +108,7 @@ print("The computed means for m =", m,
 print("    MC:",mu1MC[-1])
 print("    QMC:",mu1QMC[-1])
 
-# Plots
+# Error plots:
 plt.subplot(121)
 plt.loglog(NN,NN**(-0.5),label='$1/N^2$')
 plt.title("Crude Monte Carlo")
@@ -120,6 +123,7 @@ plt.xlabel('Sample size N')
 plt.ylabel('Estimated error')
 plt.legend()
 plt.tight_layout()
+
 if save_figures == True:
     plt.savefig('graphics/q1interval.pdf')
 
@@ -143,7 +147,114 @@ plt.title("Quasi Monte Carlo")
 plt.xlabel('Sample size N')
 plt.ylabel('mean and confidence interval')
 plt.tight_layout()
+
 if save_figures == True:
     plt.savefig('graphics/q1error.pdf')
 
-#%% Question 2.
+#%% Alternative with the class Payoff:
+import numpy as np
+import scipy as sp
+import scipy.stats  as st
+import matplotlib.pyplot as plt
+import time
+import numpy.random as rnd
+from mes_stats import RandomVariable
+from sobol_new import *
+from Payoff import Payoff
+
+# File saving options:
+save_figures = False # Change the value if needed
+if (save_figures==True and 
+    input("Do you really want to save figures into files?\n(yes/no): ")=="no"):
+    save_figures = False
+    
+alpha=0.1
+NN=(2**np.arange(7,12)).astype(int) #(7,14)
+mm=(2**np.arange(5,7)).astype(int) #(5,10)
+mu1MC = np.zeros(len(NN))
+err1MC = np.zeros(len(NN))
+mu1QMC = np.zeros(len(NN))
+err1QMC = np.zeros(len(NN))
+
+plt.figure(figsize=(10, 5)) # figsize=(6,4) by default
+plt.suptitle("Goal 1: Estimated error" +
+             " with confidence $1-" + str(alpha) + "$")
+for m in mm:
+    X=Payoff(m)
+    for j in range(len(NN)):
+        mu1MC[j], err1MC[j] = X.MC1(NN[j],alpha)
+        mu1QMC[j], err1QMC[j] = X.QMC1(NN[j],alpha)
+    plt.subplot(121)
+    plt.loglog(NN,err1MC,'.-',label='$m=$'+str(m))
+    plt.subplot(122)
+    plt.loglog(NN,err1QMC,'.-',label='$m=$'+str(m))
+    
+# Finest result (biggest m and N):
+print("The computed intervals for m =", m,
+      "and N =", NN[-1], "are:")
+print("     MC:",mu1MC[-1],"+-",err1MC[-1])
+print("    QMC:",mu1QMC[-1],"+-",err1QMC[-1])
+
+# Error plots:
+plt.subplot(121)
+plt.loglog(NN,NN**(-0.5),label='$1/N^2$')
+plt.title("Crude Monte Carlo")
+plt.xlabel('Sample size N')
+plt.ylabel('Estimated error')
+plt.legend()
+
+plt.subplot(122)
+plt.loglog(NN,NN**(-0.5),label='$1/N^2$')
+plt.title("Quasi Monte Carlo")
+plt.xlabel('Sample size N')
+plt.ylabel('Estimated error')
+plt.legend()
+plt.tight_layout()
+
+# The interval plot:    
+plt.figure(figsize=(10,5))
+plt.suptitle("Goal 1: Interval of confidence $1-"
+             + str(alpha) + "$, m="+str(mm[-1]))
+plt.subplot(121)
+plt.xscale('log')
+plt.fill_between(NN,mu1MC+err1MC,mu1MC-err1MC,alpha=0.5)
+plt.plot(NN,mu1MC,'.-')
+plt.title("Crude Monte Carlo") 
+plt.xlabel('Sample size N')
+plt.ylabel('mean and confidence interval')
+
+plt.subplot(122)
+plt.xscale('log')
+plt.fill_between(NN,mu1QMC+err1QMC,mu1QMC-err1QMC,alpha=0.5)
+plt.plot(NN,mu1QMC,'.-')
+plt.title("Quasi Monte Carlo") 
+plt.xlabel('Sample size N')
+plt.ylabel('mean and confidence interval')
+plt.tight_layout()
+
+if save_figures == True:
+    plt.savefig('graphics/q1interval.pdf')
+    
+# The interval plot:    
+plt.figure(figsize=(10,5))
+plt.suptitle("Goal 1: Interval of confidence $1-"
+             + str(alpha) + "$, m="+str(mm[-1]))
+plt.subplot(121)
+plt.xscale('log')
+plt.fill_between(NN,mu1MC+err1MC,mu1MC-err1MC,alpha=0.5)
+plt.plot(NN,mu1MC,'.-')
+plt.title("Crude Monte Carlo") 
+plt.xlabel('Sample size N')
+plt.ylabel('mean and confidence interval')
+
+plt.subplot(122)
+plt.xscale('log')
+plt.fill_between(NN,mu1QMC+err1QMC,mu1QMC-err1QMC,alpha=0.5)
+plt.plot(NN,mu1QMC,'.-')
+plt.title("Quasi Monte Carlo") 
+plt.xlabel('Sample size N')
+plt.ylabel('mean and confidence interval')
+plt.tight_layout()
+
+if save_figures == True:
+    plt.savefig('graphics/q1error.pdf')
