@@ -39,6 +39,7 @@ class Payoff(RandomVariable):
         return self.S0*np.exp((self.r - self.sigma**2/2)*self.t
                               + self.sigma*w)
     def theta_w(self,w):
+        "vectorized"
         return np.sum(self.S(w),axis=-1)/self.m - self.K
     def Psi1(self,w):
         "vectorized well if the dimension for w is in the last axe"
@@ -117,8 +118,8 @@ class Payoff(RandomVariable):
             return 0,1
         if fa<0 and fb<0:
             return 1,1
-        c = sp.optimize.root_scalar(self.theta,args=(U,position),
-                                       bracket=[0,1]).root
+        c = sp.optimize.root_scalar(self.theta,args=(U,position),maxiter=10,
+                                       bracket=[0,1],method="newton").root
         if fa<0:
             return c,1
         else:
@@ -127,13 +128,14 @@ class Payoff(RandomVariable):
         integrant=lambda xx: np.array([self.theta(x,U,position)
                                        for x in np.array(xx)])
         a,b = self.psi(U)
-        return sp.integrate.fixed_quad(integrant,a,b,n=order)[0]
-    def PIMC1(self,N,alpha=0.01,order=5,position=0):
+        return sp.integrate.fixed_quad(integrant,a,b,n=order)[0],b-a
+    def PIMC(self,N,alpha=0.01,order=5,position=0):
         U = rnd.uniform(size=(N,self.m-1))
-        X = np.array([self.integrate(U[n,:],position,order) for n in range(N)])
-        self.set_data(X)
-        return self.interval(alpha)
-    def PIQMC1(self,N,alpha=0.01,order=5,position=0,K=20):
+        Mu = np.array([self.integrate(U[n,:],position,order) for n in range(N)])
+        Mu1,Mu2= Mu[:,0],Mu[:,1]
+        return (self.set_data(Mu1).interval(alpha), 
+                self.set_data(Mu2).interval(alpha))
+    def PIQMC(self,N,alpha=0.01,order=5,position=0,K=30):
         X = generate_points(N,self.m-1)
         U = rnd.uniform(size=(K,1,self.m-1))
         X= X[None,:,:]
@@ -141,5 +143,6 @@ class Payoff(RandomVariable):
         Mu =np.array([[self.integrate(XX[k,n,:],position,order) 
                        for n in range(N)] for k in range(K)])
         Mu = np.mean(Mu,axis=1)
-        self.set_data(Mu)
-        return self.interval(alpha)
+        Mu1,Mu2= Mu[:,0],Mu[:,1]
+        return (self.set_data(Mu1).interval(alpha), 
+                self.set_data(Mu2).interval(alpha))
