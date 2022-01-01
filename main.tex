@@ -2,6 +2,7 @@
 \usepackage{amsmath} %pour tous les trucs de math
 \usepackage{systeme} %pour tous les systemes d'équations
 %\usepackage{ bbold }  %pour toutes les doubles lettres
+\usepackage{ dsfont } %pour le double 1
 \usepackage{amssymb}  %pour les double Lettres
 \usepackage{IEEEtrantools} %pour les équations en collonnes
 \usepackage{amsthm} %pour les preuves
@@ -13,6 +14,7 @@
 %\usepackage{enumitem} %pour changer les listes
 \usepackage[a4paper,textwidth=15cm,,textheight=25cm]{geometry}
 %\usepackage[framed,numbered]{mcode} %MatLab
+\usepackage{minted}
 \usepackage{graphicx} % pour les graphiques
 %\usepackage{subfig} % pour les doubles figures
 \usepackage{float} % pour bien positionner les figures
@@ -55,17 +57,52 @@
 \newcommand{\N}{\mathbb{N}}
 \newcommand{\Z}{\mathbb{Z}}
 \newcommand{\C}{\mathbb{C}}
+\newcommand{\un}{\mathds{1}}
+\newcommand{\s}{\sigma}
+\newcommand{\starteq}{\begin{IEEEeqnarray*}{rCl}}
+\newcommand{\stopeq}{\end{IEEEeqnarray*}}
 \newcommand{\com}[1]{\textcolor{ForestGreen}{[~\emph{#1}~]}}
+\newcommand{\python}[1]{\inputminted[linenos,frame=single]{python}{#1}}
 %\newcommand{\nom}[nombre d’arguments]{définition(#1,#2,...,#n)}
 
 \begin{document}
 \maketitle
+\part*{Preparations}
+To re-cast the integral into a hypercube, we rewrite it first in terms of into uniform random variables in $[0,1]$. To do this we write the discretized Brownian motion in term of normal variables by Gaussian increments:
+$$w_{t_i} = w_{t_{i-1}}+(t_i-t_{i-1})\xi_i 
+= \sum_{k=1}^i (t_i-t_{i-1})\xi_i \text{\quad for } j\in\{0,\dots,m\}$$
+with $t_i=i T/m$ and $\xi_i$ some independent normal standard variables.
+Now we write $\xi_i$ using uniform variables. For efficiency and because we can impose the dimension to be even, we choose the Box-Müller method\footnote{I'm a Mister Müller too but I promise I don't receive any royalties on the spread of this fancy method.}:
+$$
+\xi_{2k,2k-1} = \sqrt{-2\log{U_{2k}}}(\cos,\sin)(2\pi U_{2k-1}) 
+\text{\quad for } k\in{1,\dots,m/2} $$
+We can write now explicitely $\Psi_i=\theta_i(U)\un_{\phi(U)}$ for a uniform variable $U$ in $\R^m$ with
+\starteq
+\phi(U)&=&\frac{1}{m}\sum_{k=1} ^m S_i\big(W_i(U)\big) \\
+&=& \frac{1}{m}\sum_{k=1} ^m S_i\big(\sum_{k=1}^i (t_i-t_{i-1})Z_i(U)\big) \\
+&=& \frac{1}{m}\sum_{k=1} ^m S_0 e^{(r-\s^2/2)t_i + \s t\sum_{k=1}^i (t_i-t_{i-1})Z_i(U)}
+\stopeq
+where we have fixed $m$ so we can define $ S_i=S_{t_i}$, $W_i(U)=w_{t_i}$, $ Z_i(U)=\xi_{i}$
+
+We fix the variables $K=S_0=100$ and $r=\s=0.1$ for now, and consider the dimension $m$ taking values $2^5,\dots,2^{10}$
 \part{}
-First estimate the value of the integral, as well as the error of the estimation, using a crude Monte Carlo and a randomized QMC, without the pre-integration trick, i.e., by generating (Q)MC sample $(z^{(1)},\dots, z^{(N)})$ over the $m$-dimensional unit cube $[0, 1]^m$. Try increasing values of the samples size $N = 27,\dots, 213$ and plot the estimated error versus $N$. Comment on the observed convergence rate.
+%First estimate the value of the integral, as well as the error of the estimation, using a crude Monte Carlo and a randomized QMC, without the pre-integration trick, i.e., by generating (Q)MC sample $(z^{(1)},\dots, z^{(N)})$ over the $m$-dimensional unit cube ${[0, 1]}^m$. Try increasing values of the samples size $N = 27,\dots, 213$ and plot the estimated error versus $N$. Comment on the observed convergence rate.
+We decide to go for an object-oriented implementation, using class of objets. First, we will use along the porject a class called RandomVariable
 \part{}
-Implement now the pre-integration trick. First, generate randomized (Q)MC points over [0,1]m−1, and decide on which direction xj to perform the integration and discuss your choice (or, alternatively, compare numerically different choices) depending also on the adopted re-parametrization of the Brownian path. Use the pre-integration approach to estimate Vi using both QMC and MC. Estimate your (Q)Monte Carlo error using sample sizes N = 27,...,213. Plot the estimated error versus N. Compare your results to those obtained in point 1 in terms of error and computational cost.
+%Implement now the pre-integration trick. First, generate randomized (Q)MC points over ${[0,1]}^{m−1}$, and decide on which direction $xj$ to perform the integration and discuss your choice (or, alternatively, compare numerically different choices) depending also on the adopted re-parametrization of the Brownian path. Use the pre-integration approach to estimate Vi using both QMC and MC. Estimate your (Q)Monte Carlo error using sample sizes $N = 27,...,213$. Plot the estimated error versus N. Compare your results to those obtained in point 1 in terms of error and computational cost.
 \part{}
-Consider now K = 500 and the goal of computing V1 and V2 with given relative accuracy $10^{−2}$ in the mean squared sense. What sample size should be used for a crude MC estimator? Propose a variance reduction technique to improve the performance of the crude MC estimator.
+%Consider now $K = 500$ and the goal of computing V1 and V2 with given relative accuracy $10^{−2}$ in the mean squared sense. What sample size should be used for a crude MC estimator? Propose a variance reduction technique to improve the performance of the crude MC estimator.
 \part{}
-Repeat point 3 for the QMC estimator (with and without the pre-integration trick). What do you observe? Can the variance reduction technique proposed in point 3 be used also in this context? If yes, how?
+%Repeat point 3 for the QMC estimator (with and without the pre-integration trick). What do you observe? Can the variance reduction technique proposed in point 3 be used also in this context? If yes, how?
+
+\appendix
+\section{mes\_statsp.y}
+\python{mes_stats.py}
+\section{mes\_statsp.y}
+\python{mes_stats.py}
+\section{mes\_statsp.y}
+\python{mes_stats.py}
+\section{mes\_statsp.y}
+\python{mes_stats.py}
+
 \end{document}
