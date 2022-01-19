@@ -31,14 +31,12 @@ def cdf(X,x=None):
 class RandomVariable:
     """
     Methods for statistics on scalar or vector(iid components) random variable samples
-    Use array of numpy
+    Use arrays of numpy
     """
-    def __init__(self,X=np.array([]),d=1,ordered=False):
+    def __init__(self,X=np.array([]),ordered=False):
         "Initiate a rv with sample X"
         self.X=X
         self.ordered=ordered
-        self.N=np.shape(X)[0]
-        self.d=d
     def sort(self):
         "If scalar, sort the sample to increasing order"
         if self.ordered==False:
@@ -82,17 +80,7 @@ class RandomVariable:
         return np.sum((mean - self.X)**2,axis=0) / (self.N-1)
     def interval(self,alpha):
         """Compute the 1-alpha confidence interval of the expected value"
-        return the mean and the error st. I=[mu +- error] """
+        return the mean and the error s.t. I=[mu +- error] """
         mu= self.mean()
         err =   st.norm.ppf(1-alpha/2) * np.sqrt(self.variance(mu)/self.N)
         return mu, err
-    def MC(self,rvs,N,alpha=0.01):
-        return self.set_data(rvs(N)).interval(alpha)
-    def QMC(self,trans,N,K=20,alpha=0.01):
-        X = generate_points(N,self.d,0)
-        U = rnd.uniform(size=(K,self.d))
-        Mu = np.array([[trans(np.floor(X[n,:]+U[k,:])) for n in range(N)]
-                       for k in range(K)])
-        Mu = np.mean(Mu,axis=1)
-        self.set_data(Mu)
-        return self.interval(alpha)

@@ -1,51 +1,45 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sat Dec 25 17:10:21 2021
+Created on Sat Jan  1 15:18:30 2022
 
 @author: benoitmuller
-question 2.
+Question 3
 """
 
 import numpy as np
-#import scipy as sp
-#import scipy.stats  as st
+import scipy as sp
+import scipy.stats  as st
 import matplotlib.pyplot as plt
-#import time
-#import numpy.random as rnd
-#from mes_stats import RandomVariable
-#from sobol_new import generate_points
+import time
+import numpy.random as rnd
+from mes_stats import RandomVariable
+from sobol_new import *
 from Payoff import Payoff
 
-"""paramètres ou ça marche bien:
-np.random.seed(54321) (7,14) (5,6)
-"""
-# Fix the seed:
-np.random.seed(12345)
-
 # File saving options:
-save_figures = True # Change the value if needed
+save_figures = False # Change the value if needed
 if (save_figures==True and 
     input("Do you really want to save figures"+
           " into files?\n(yes/no): ") == "no"):
     save_figures = False
     
 alpha=0.01
-NN=(2**np.arange(7,12)).astype(int) #(7,14)
-mm=(2**np.arange(5,6)).astype(int) #(5,10)
+NN=(2**np.arange(7,14)).astype(int) #(7,14)
+mm=(2**np.arange(5,7)).astype(int) #(5,10)
 MC1 = np.zeros((2,len(NN)))
 MC2 = np.zeros((2,len(NN)))
 QMC1 = np.zeros((2,len(NN)))
 QMC2 = np.zeros((2,len(NN)))
 
 plt.figure(figsize=(10, 9)) # figsize=(6,4) by default
-plt.suptitle("Goal 2: With pre-integration, estimated error" +
+plt.suptitle("Goal 3: Without pre-integration, estimated error" +
              " with confidence $1-" + str(alpha) + "$")
 for m in mm:
-    X=Payoff(m)
+    X=Payoff(m,K=500,S0=500)
     for j in range(len(NN)):
-        MC1[:,j], MC2[:,j] = X.PIMC(NN[j],alpha,order=5)
-        QMC1[:,j], QMC2[:,j] = X.PIQMC(NN[j],alpha,order=5,K=10)
+        MC1[:,j], MC2[:,j] = X.MC(NN[j],alpha)
+        QMC1[:,j], QMC2[:,j] = X.QMC(NN[j],alpha)
     plt.subplot(221)
     plt.loglog(NN,MC1[1,:],'.-',label='$m=$'+str(m))
     plt.subplot(222)
@@ -96,11 +90,11 @@ plt.legend()
 
 plt.tight_layout()
 if save_figures == True:
-    plt.savefig('graphics/q2error.pdf')
+    plt.savefig('graphics/q3error.pdf')
 
 # The interval plot:    
 plt.figure(figsize=(10,9))
-plt.suptitle("Goal 1: With pre-integration, interval of confidence $1-"
+plt.suptitle("Goal 1: Without pre-integration, interval of confidence $1-"
              + str(alpha) + "$, m="+str(mm[-1]))
 plt.subplot(221)
 plt.xscale('log')
@@ -137,4 +131,4 @@ plt.ylabel('mean and confidence interval')
 plt.tight_layout()
 
 if save_figures == True:
-    plt.savefig('graphics/q2interval.pdf')
+    plt.savefig('graphics/q3interval.pdf')
